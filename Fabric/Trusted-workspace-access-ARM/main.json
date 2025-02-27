@@ -1,0 +1,93 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.33.93.31351",
+      "templateHash": "1054945504101360966"
+    }
+  },
+  "parameters": {
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "ストレージアカウントリソース名称を入力してください"
+      }
+    },
+    "workspace_instance_id": {
+      "type": "string",
+      "metadata": {
+        "description": "URLから取得したワークスペースインスタンスIDを入力してください"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "storage_nw_acl",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "storageAccountName": {
+            "value": "[parameters('storageAccountName')]"
+          },
+          "location": {
+            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2023-01-01', 'full').location]"
+          },
+          "workspace_instance_id": {
+            "value": "[parameters('workspace_instance_id')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.33.93.31351",
+              "templateHash": "8078204352597047151"
+            }
+          },
+          "parameters": {
+            "storageAccountName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "workspace_instance_id": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "resouceId": "[format('/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/Fabric/providers/Microsoft.Fabric/workspaces/{0}', parameters('workspace_instance_id'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2023-01-01",
+              "name": "[parameters('storageAccountName')]",
+              "kind": "StorageV2",
+              "location": "[parameters('location')]",
+              "properties": {
+                "networkAcls": {
+                  "resourceAccessRules": [
+                    {
+                      "tenantId": "[subscription().tenantId]",
+                      "resourceId": "[variables('resouceId')]"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
